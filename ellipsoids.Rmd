@@ -1,0 +1,122 @@
+---
+title: "A multi-isotopic approach for monitoring spatiotemporal variability of trophic resources: the case of two sympatric gull species"
+author: "Morera Pujol, Virginia"
+root.dir: "C:/Users/Virginia/Dropbox/Virginia/WSTC3"
+output:
+  html_document: default
+---
+
+Standard ellipsoids representing the isotopic niches of two species of gulls based in isotopic values of Carbon, Nitrogen and Sulphur ...
+
+## Standard ellipsoids for Audouin's gull _(Ichthyaetus audouinii)_
+```{r ICHAUD ellipsoids, webgl=TRUE, echo = FALSE, fig.width=10, fig.height=10}
+glob_cex <- 0.06
+
+library(rgl)
+library(plyr)
+knitr::knit_hooks$set(webgl = hook_webgl)
+all_data_MED2 <- read.csv("C:/Users/Virginia/Dropbox/Virginia/Gavines/data_for_plot.csv")
+all_LA <- all_data_MED2[all_data_MED2$SP == "LARAUD",]
+centroids_LA <- ddply(all_LA, ~ ID, summarize, 
+                      mean.C = mean(D13C), 
+                      mean.N = mean(D15N), 
+                      mean.S = mean(D34S, na.rm = T))
+
+centroids_LA <- centroids_LA[order(centroids_LA$ID),]
+all_LA <- all_LA[order(all_LA$ID),]
+
+
+
+clrs_A <- c("Darkblue","Darkblue","Darkblue", "cyan", "cyan", "cyan", "blueviolet")  
+pch_A <- c(16,15,17,16,15,17,16)
+
+
+plot3d(all_data_MED2$D13C, all_data_MED2$D15N, all_data_MED2$D34S,
+       xlab = "Carbon", ylab = "Nitrogen", zlab = "Sulphur",
+       type ="n")
+grid3d(c("x", "y+", "z"))
+# legend3d("bottomright",
+#        c("Alborán", "Zembra", "Ebro Delta", "2009", "2010", "2011"),
+#        col = c("darkblue", "blueviolet", "cyan", "black", "black", "black"),
+#        pch = c(20, 20, 20, 21, 22, 24),
+#        bg = "black",
+#        bty = "n",
+#        y.intersp = 0.8,
+#        cex = 1.5)
+for (i in 1:length(unique(all_LA$ID))){
+  # i = 7
+  sub <- all_LA[all_LA$ID == unique(all_LA$ID)[i],]
+  pch3d(centroids_LA$mean.C[i], centroids_LA$mean.N[i], centroids_LA$mean.S[i],
+        pch = pch_A[i],
+        col = clrs_A[i],
+        radius = 0.2,
+        add = T)
+  ellips <- ellipse3d(cov(cbind(sub$D13C, sub$D15N, sub$D34S)), 
+                      centre=c(mean(sub$D13C), mean(sub$D15N), mean(sub$D34S)), level = 0.40)
+  plot3d(ellips, col = clrs_A[i], alpha = 0.2, add = TRUE, box = FALSE)
+}
+
+
+
+
+
+```
+
+## Standard ellipsoids for Yellow-legged gull _(Larus michahellis)_
+```{r LARMIC_ellipsoids, webgl=TRUE, echo = FALSE, fig.width=10, fig.height=10}
+glob_cex <- 0.06
+
+library(rgl)
+library(plyr)
+knitr::knit_hooks$set(webgl = hook_webgl)
+all_data_MED2 <- read.csv("C:/Users/Virginia/Dropbox/Virginia/Gavines/data_for_plot.csv")
+all_LM <- all_data_MED2[all_data_MED2$SP == "LARMIC",]
+centroids_LM <- ddply(all_LM, ~ ID, summarize, 
+                      mean.C = mean(D13C), 
+                      mean.N = mean(D15N), 
+                      mean.S = mean(D34S, na.rm = T))
+
+centroids_LM <- centroids_LM[order(centroids_LM$ID),]
+all_LM <- all_LM[order(all_LM$ID),]
+
+clrs_M <- c("blue","blue","blue", "cyan", "cyan", "cyan", "darkred", "darkred", 
+            "darkorange", "darkorange", "darkorange", "blueviolet")  
+pch_M <- c(16,15,17,16,15,17,15,17,16,15,17,16)
+
+
+plot3d(all_data_MED2$D13C, all_data_MED2$D15N, all_data_MED2$D34S,
+       xlab = "Carbon", ylab = "Nitrogen", zlab = "Sulphur",
+       type ="n")
+grid3d(c("x", "y+", "z"))
+# legend3d("bottomright",
+#          c("Alborán", "Columbretes Islands", "Medes Islands", "Dragonera", "Zembra", "Ebro Delta", "2009", "2010", "2011"),
+#          col = c("darkblue", "blue", "darkorange", "darkred", "blueviolet", "cyan", "black", "black", "black"),
+#          pch = c(20, 20, 20, 20, 20, 20, 21, 22, 24), 
+#          bg = "black",
+#          bty = "n",
+#          y.intersp = 0.8,
+#          cex = 1.5)
+
+for (i in 1:length(unique(all_LM$ID))){
+  # i = 3
+  sub <- all_LM[all_LM$ID == unique(all_LM$ID)[i],]
+  pch3d(centroids_LM$mean.C[i], centroids_LM$mean.N[i], centroids_LM$mean.S[i],
+        pch = pch_M[i],
+        col = clrs_M[i],
+        box = T,
+        radius = 0.2,
+        add = T)
+  ellips <- ellipse3d(cov(cbind(sub$D13C, sub$D15N, sub$D34S)), 
+                      centre=c(mean(sub$D13C), mean(sub$D15N), mean(sub$D34S)), level = 0.40)
+  plot3d(ellips, col = clrs_M[i], alpha = 0.3, add = TRUE, box = FALSE)
+ }
+
+```
+
+# Legend
+```{r fig.width=3, fig.height=3, echo=FALSE}
+library(png)
+library(grid)
+img <- readPNG("C:/Users/Virginia/Dropbox/Virginia/Gavines/legend.png")
+ grid.raster(img)
+```
